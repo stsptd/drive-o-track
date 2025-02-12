@@ -1,6 +1,5 @@
 
 import { useState } from 'react';
-import { useThree } from '@react-three/fiber';
 import { usePlane } from '@react-three/cannon';
 import * as THREE from 'three';
 import { TrackPiece } from './TrackPiece';
@@ -18,13 +17,13 @@ const TrackBuilder = () => {
     type: 'Static',
   }));
 
-  const handlePlaceTrack = (event: THREE.Event) => {
-    if ('button' in event && event.button === 0) {
-      const pos = (event as any).point.toArray();
+  const handlePlaceTrack = (event: any) => {
+    if (event.button === 0) {
+      const point = event.point as THREE.Vector3;
       setPieces([
         ...pieces,
         {
-          position: [pos[0], 0.1, pos[2]],
+          position: [point.x, 0.1, point.z],
           rotation: [0, 0, 0],
           type: 'straight',
         },

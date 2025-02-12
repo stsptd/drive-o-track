@@ -14,7 +14,7 @@ const Car = ({ position }: { position: [number, number, number] }) => {
 
   const velocity = useRef([0, 0, 0]);
 
-  useFrame((state) => {
+  useFrame(() => {
     const { forward, backward, left, right } = getKeys();
     const force = 1000;
     const turn = 0.05;
@@ -26,10 +26,10 @@ const Car = ({ position }: { position: [number, number, number] }) => {
       api.applyLocalForce([0, 0, force], [0, 0, 0]);
     }
     if (left && ref.current) {
-      ref.current.rotation.y += turn;
+      api.rotation.set(0, ref.current.rotation.y + turn, 0);
     }
     if (right && ref.current) {
-      ref.current.rotation.y -= turn;
+      api.rotation.set(0, ref.current.rotation.y - turn, 0);
     }
 
     api.velocity.subscribe((v) => (velocity.current = v));
