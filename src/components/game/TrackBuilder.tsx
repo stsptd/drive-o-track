@@ -19,11 +19,10 @@ const TrackBuilder = () => {
 
   const handlePlaceTrack = (event: any) => {
     if (event.button === 0) {
-      const point = event.point as THREE.Vector3;
       setPieces([
         ...pieces,
         {
-          position: [point.x, 0.1, point.z],
+          position: [event.point.x, 0.1, event.point.z],
           rotation: [0, 0, 0],
           type: 'straight',
         },

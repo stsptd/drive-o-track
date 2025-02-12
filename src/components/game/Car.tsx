@@ -25,11 +25,11 @@ const Car = ({ position }: { position: [number, number, number] }) => {
     if (backward) {
       api.applyLocalForce([0, 0, force], [0, 0, 0]);
     }
-    if (left && ref.current) {
-      api.rotation.set(0, ref.current.rotation.y + turn, 0);
+    if (left) {
+      api.rotation.set(0, (ref.current?.rotation.y || 0) + turn, 0);
     }
-    if (right && ref.current) {
-      api.rotation.set(0, ref.current.rotation.y - turn, 0);
+    if (right) {
+      api.rotation.set(0, (ref.current?.rotation.y || 0) - turn, 0);
     }
 
     api.velocity.subscribe((v) => (velocity.current = v));
