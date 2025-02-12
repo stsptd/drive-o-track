@@ -1,7 +1,8 @@
 
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useThree } from '@react-three/fiber';
 import { usePlane } from '@react-three/cannon';
+import * as THREE from 'three';
 import { TrackPiece } from './TrackPiece';
 
 const TrackBuilder = () => {
@@ -11,17 +12,15 @@ const TrackBuilder = () => {
     type: string;
   }>>([]);
 
-  const [ref] = usePlane(() => ({
+  const [ref] = usePlane<THREE.Mesh>(() => ({
     rotation: [-Math.PI / 2, 0, 0],
     position: [0, 0, 0],
     type: 'Static',
   }));
 
-  const { raycaster, camera, scene } = useThree();
-
-  const handlePlaceTrack = (event: any) => {
-    if (event.button === 0) {
-      const pos = event.point.toArray();
+  const handlePlaceTrack = (event: THREE.Event) => {
+    if ('button' in event && event.button === 0) {
+      const pos = (event as any).point.toArray();
       setPieces([
         ...pieces,
         {

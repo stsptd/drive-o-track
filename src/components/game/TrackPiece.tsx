@@ -1,5 +1,6 @@
 
 import { useBox } from '@react-three/cannon';
+import * as THREE from 'three';
 
 export const TrackPiece = ({
   position,
@@ -10,7 +11,7 @@ export const TrackPiece = ({
   rotation: [number, number, number];
   type: string;
 }) => {
-  const [ref] = useBox(() => ({
+  const [ref] = useBox<THREE.Mesh>(() => ({
     type: 'Static',
     position,
     rotation,
