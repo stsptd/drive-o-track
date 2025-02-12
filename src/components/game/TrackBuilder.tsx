@@ -11,37 +11,34 @@ const TrackBuilder = () => {
     type: string;
   }>>([]);
 
-  const [, planeApi] = usePlane(() => ({
+  const [planeRef] = usePlane(() => ({
     rotation: [-Math.PI / 2, 0, 0],
     position: [0, 0, 0],
     type: 'Static',
   }));
 
-  const handlePlaceTrack = (event: any) => {
-    if (event.button === 0) {
-      setPieces([
-        ...pieces,
-        {
-          position: [event.point.x, 0.1, event.point.z],
-          rotation: [0, 0, 0],
-          type: 'straight',
-        },
-      ]);
+  const handlePlaceTrack = (event: { button: number; point: THREE.Vector3 }) => {
+    if (event.button === 0 && event.point) {
+      const newPiece = {
+        position: [event.point.x, 0.1, event.point.z],
+        rotation: [0, 0, 0],
+        type: 'straight',
+      } as const;
+      
+      setPieces((currentPieces) => [...currentPieces, newPiece]);
     }
   };
 
   return (
-    <>
-      <group>
-        <mesh receiveShadow onClick={handlePlaceTrack}>
-          <planeGeometry args={[100, 100]} />
-          <meshStandardMaterial color="#303030" />
-        </mesh>
-      </group>
+    <group>
+      <mesh ref={planeRef} receiveShadow onClick={handlePlaceTrack}>
+        <planeGeometry args={[100, 100]} />
+        <meshStandardMaterial color="#303030" />
+      </mesh>
       {pieces.map((piece, index) => (
         <TrackPiece key={index} {...piece} />
       ))}
-    </>
+    </group>
   );
 };
 

@@ -5,16 +5,20 @@ import { useBox } from '@react-three/cannon';
 import * as THREE from 'three';
 
 const Car = ({ position }: { position: [number, number, number] }) => {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const [, api] = useBox(() => ({
+  const rotationRef = useRef(0);
+  const velocityRef = useRef<[number, number, number]>([0, 0, 0]);
+  
+  const [meshRef, api] = useBox(() => ({
     mass: 500,
     position,
     args: [2, 1, 4],
     type: 'Dynamic',
+    onCollide: (e) => {
+      if (e && e.contact) {
+        // Handle collision
+      }
+    }
   }));
-
-  const velocity = useRef([0, 0, 0]);
-  const rotation = useRef(0);
 
   useFrame(() => {
     const { forward, backward, left, right } = getKeys();
@@ -28,15 +32,19 @@ const Car = ({ position }: { position: [number, number, number] }) => {
       api.applyLocalForce([0, 0, force], [0, 0, 0]);
     }
     if (left) {
-      rotation.current += turn;
-      api.rotation.set(0, rotation.current, 0);
+      rotationRef.current += turn;
+      api.rotation.set(0, rotationRef.current, 0);
     }
     if (right) {
-      rotation.current -= turn;
-      api.rotation.set(0, rotation.current, 0);
+      rotationRef.current -= turn;
+      api.rotation.set(0, rotationRef.current, 0);
     }
 
-    api.velocity.subscribe((v) => (velocity.current = v));
+    api.velocity.subscribe((v) => {
+      if (Array.isArray(v) && v.length === 3) {
+        velocityRef.current = v as [number, number, number];
+      }
+    });
   });
 
   return (

@@ -11,16 +11,16 @@ export const TrackPiece = ({
   rotation: [number, number, number];
   type: string;
 }) => {
-  const [, api] = useBox(() => ({
+  const [meshRef] = useBox(() => ({
     type: 'Static',
-    position,
-    rotation,
+    position: position || [0, 0, 0],
+    rotation: rotation || [0, 0, 0],
     args: [2, 0.2, 5],
   }));
 
   return (
     <group>
-      <mesh receiveShadow castShadow>
+      <mesh ref={meshRef} receiveShadow castShadow>
         <boxGeometry args={[2, 0.2, 5]} />
         <meshStandardMaterial color="#505050" />
       </mesh>
