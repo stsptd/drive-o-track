@@ -5,7 +5,8 @@ import { useBox } from '@react-three/cannon';
 import * as THREE from 'three';
 
 const Car = ({ position }: { position: [number, number, number] }) => {
-  const [ref, api] = useBox<THREE.Mesh>(() => ({
+  const meshRef = useRef<THREE.Mesh>(null);
+  const [, api] = useBox(() => ({
     mass: 500,
     position,
     args: [2, 1, 4],
@@ -13,6 +14,7 @@ const Car = ({ position }: { position: [number, number, number] }) => {
   }));
 
   const velocity = useRef([0, 0, 0]);
+  const rotation = useRef(0);
 
   useFrame(() => {
     const { forward, backward, left, right } = getKeys();
@@ -26,20 +28,24 @@ const Car = ({ position }: { position: [number, number, number] }) => {
       api.applyLocalForce([0, 0, force], [0, 0, 0]);
     }
     if (left) {
-      api.rotation.set(0, (ref.current?.rotation.y || 0) + turn, 0);
+      rotation.current += turn;
+      api.rotation.set(0, rotation.current, 0);
     }
     if (right) {
-      api.rotation.set(0, (ref.current?.rotation.y || 0) - turn, 0);
+      rotation.current -= turn;
+      api.rotation.set(0, rotation.current, 0);
     }
 
     api.velocity.subscribe((v) => (velocity.current = v));
   });
 
   return (
-    <mesh ref={ref} castShadow>
-      <boxGeometry args={[2, 1, 4]} />
-      <meshStandardMaterial color="red" />
-    </mesh>
+    <group>
+      <mesh ref={meshRef} castShadow>
+        <boxGeometry args={[2, 1, 4]} />
+        <meshStandardMaterial color="red" />
+      </mesh>
+    </group>
   );
 };
 

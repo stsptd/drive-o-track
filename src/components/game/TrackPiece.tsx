@@ -11,7 +11,7 @@ export const TrackPiece = ({
   rotation: [number, number, number];
   type: string;
 }) => {
-  const [ref] = useBox<THREE.Mesh>(() => ({
+  const [, api] = useBox(() => ({
     type: 'Static',
     position,
     rotation,
@@ -19,9 +19,11 @@ export const TrackPiece = ({
   }));
 
   return (
-    <mesh ref={ref} receiveShadow castShadow>
-      <boxGeometry args={[2, 0.2, 5]} />
-      <meshStandardMaterial color="#505050" />
-    </mesh>
+    <group>
+      <mesh receiveShadow castShadow>
+        <boxGeometry args={[2, 0.2, 5]} />
+        <meshStandardMaterial color="#505050" />
+      </mesh>
+    </group>
   );
 };

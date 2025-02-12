@@ -11,7 +11,7 @@ const TrackBuilder = () => {
     type: string;
   }>>([]);
 
-  const [ref] = usePlane<THREE.Mesh>(() => ({
+  const [, planeApi] = usePlane(() => ({
     rotation: [-Math.PI / 2, 0, 0],
     position: [0, 0, 0],
     type: 'Static',
@@ -32,10 +32,12 @@ const TrackBuilder = () => {
 
   return (
     <>
-      <mesh ref={ref} receiveShadow onClick={handlePlaceTrack}>
-        <planeGeometry args={[100, 100]} />
-        <meshStandardMaterial color="#303030" />
-      </mesh>
+      <group>
+        <mesh receiveShadow onClick={handlePlaceTrack}>
+          <planeGeometry args={[100, 100]} />
+          <meshStandardMaterial color="#303030" />
+        </mesh>
+      </group>
       {pieces.map((piece, index) => (
         <TrackPiece key={index} {...piece} />
       ))}
