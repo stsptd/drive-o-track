@@ -5,23 +5,28 @@ import { useBox } from '@react-three/cannon';
 import * as THREE from 'three';
 
 const Car = ({ position }: { position: [number, number, number] }) => {
+  console.log('Car: Component rendering', position);
+  
   const rotationRef = useRef(0);
   const velocityRef = useRef<[number, number, number]>([0, 0, 0]);
   
-  const [meshRef, api] = useBox(() => ({
-    mass: 500,
-    position,
-    args: [2, 1, 4],
-    type: 'Dynamic',
-    onCollide: (e) => {
-      if (e && e.contact) {
-        // Handle collision
-      }
-    }
-  }));
+  const [meshRef, api] = useBox(() => {
+    console.log('Car: Creating physics body');
+    return {
+      mass: 500,
+      position,
+      args: [2, 1, 4],
+      type: 'Dynamic' as const,
+    };
+  });
 
   useFrame(() => {
     const { forward, backward, left, right } = getKeys();
+    
+    if (forward || backward || left || right) {
+      console.log('Car: Movement detected', { forward, backward, left, right });
+    }
+
     const force = 1000;
     const turn = 0.05;
 
@@ -41,6 +46,7 @@ const Car = ({ position }: { position: [number, number, number] }) => {
     }
 
     api.velocity.subscribe((v) => {
+      console.log('Car: Velocity update', v);
       if (Array.isArray(v) && v.length === 3) {
         velocityRef.current = v as [number, number, number];
       }
@@ -49,7 +55,7 @@ const Car = ({ position }: { position: [number, number, number] }) => {
 
   return (
     <group>
-      <mesh ref={meshRef} castShadow>
+      <mesh ref={meshRef as any} castShadow>
         <boxGeometry args={[2, 1, 4]} />
         <meshStandardMaterial color="red" />
       </mesh>
