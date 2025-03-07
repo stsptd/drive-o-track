@@ -4,6 +4,21 @@ import { useFrame } from '@react-three/fiber';
 import { useBox } from '@react-three/cannon';
 import * as THREE from 'three';
 
+// Define an interface for the physics body reference
+interface PhysicsBodyRef {
+  position: {
+    x: number;
+    y: number;
+    z: number;
+  };
+  quaternion: {
+    x: number;
+    y: number;
+    z: number;
+    w: number;
+  };
+}
+
 const Car = ({ position }: { position: [number, number, number] }) => {
   console.log('Car: Component rendering', position);
   
@@ -71,19 +86,21 @@ const Car = ({ position }: { position: [number, number, number] }) => {
     
     // Sync mesh with physics if both refs exist
     if (physicsRef && meshRef.current) {
-      // Instead of accessing properties directly, we check if they exist on the physicsRef
-      if ('position' in physicsRef && 'quaternion' in physicsRef) {
-        // Now we can safely access position and quaternion
+      // Type assertion to define the shape of physicsRef
+      const typedPhysicsRef = physicsRef as unknown as PhysicsBodyRef;
+      
+      // Now we can safely access position and quaternion
+      if ('position' in typedPhysicsRef && 'quaternion' in typedPhysicsRef) {
         meshRef.current.position.set(
-          physicsRef.position.x,
-          physicsRef.position.y,
-          physicsRef.position.z
+          typedPhysicsRef.position.x,
+          typedPhysicsRef.position.y,
+          typedPhysicsRef.position.z
         );
         meshRef.current.quaternion.set(
-          physicsRef.quaternion.x,
-          physicsRef.quaternion.y,
-          physicsRef.quaternion.z,
-          physicsRef.quaternion.w
+          typedPhysicsRef.quaternion.x,
+          typedPhysicsRef.quaternion.y,
+          typedPhysicsRef.quaternion.z,
+          typedPhysicsRef.quaternion.w
         );
       }
     }

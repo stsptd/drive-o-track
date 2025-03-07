@@ -3,6 +3,15 @@ import { useBox } from '@react-three/cannon';
 import * as THREE from 'three';
 import { useRef } from 'react';
 
+// Define an interface for the physics body reference
+interface PhysicsBodyRef {
+  position: {
+    x: number;
+    y: number;
+    z: number;
+  };
+}
+
 export const TrackPiece = ({
   position,
   rotation,
@@ -38,13 +47,15 @@ export const TrackPiece = ({
 
   // Apply physics ref to mesh ref on update
   if (physicsRef && meshRef.current) {
-    // Use type guard to check if the properties exist before accessing them
-    if ('position' in physicsRef) {
-      // Now TypeScript knows position exists
+    // Type assertion to define the shape of physicsRef
+    const typedPhysicsRef = physicsRef as unknown as PhysicsBodyRef;
+    
+    // Now TypeScript knows position exists
+    if ('position' in typedPhysicsRef) {
       meshRef.current.position.set(
-        physicsRef.position.x, 
-        physicsRef.position.y, 
-        physicsRef.position.z
+        typedPhysicsRef.position.x, 
+        typedPhysicsRef.position.y, 
+        typedPhysicsRef.position.z
       );
       meshRef.current.rotation.set(safeRotation[0], safeRotation[1], safeRotation[2]);
     }
