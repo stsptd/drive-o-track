@@ -7,16 +7,27 @@ import * as THREE from 'three';
 const Car = ({ position }: { position: [number, number, number] }) => {
   console.log('Car: Component rendering', position);
   
-  const rotationRef = useRef(0);
+  // Use refs for internal state
+  const rotationRef = useRef<number>(0);
   const velocityRef = useRef<[number, number, number]>([0, 0, 0]);
+  const meshRef = useRef<THREE.Mesh>(null);
   
-  const [meshRef, api] = useBox(() => {
-    console.log('Car: Creating physics body');
+  // Ensure position is valid
+  const safePosition = position || [0, 0.5, 0];
+  
+  const [physicsRef, api] = useBox(() => {
+    console.log('Car: Creating physics body with position', safePosition);
     return {
       mass: 500,
-      position,
+      position: safePosition,
       args: [2, 1, 4],
       type: 'Dynamic' as const,
+      onCollide: (e) => {
+        if (e && e.contact) {
+          console.log('Car: Collision detected');
+        }
+        return true; // Ensure callback returns a value
+      }
     };
   });
 
@@ -30,32 +41,44 @@ const Car = ({ position }: { position: [number, number, number] }) => {
     const force = 1000;
     const turn = 0.05;
 
-    if (forward) {
-      api.applyLocalForce([0, 0, -force], [0, 0, 0]);
-    }
-    if (backward) {
-      api.applyLocalForce([0, 0, force], [0, 0, 0]);
-    }
-    if (left) {
-      rotationRef.current += turn;
-      api.rotation.set(0, rotationRef.current, 0);
-    }
-    if (right) {
-      rotationRef.current -= turn;
-      api.rotation.set(0, rotationRef.current, 0);
-    }
-
-    api.velocity.subscribe((v) => {
-      console.log('Car: Velocity update', v);
-      if (Array.isArray(v) && v.length === 3) {
-        velocityRef.current = v as [number, number, number];
+    // Apply forces safely
+    if (api) {
+      if (forward) {
+        api.applyLocalForce([0, 0, -force], [0, 0, 0]);
       }
-    });
+      if (backward) {
+        api.applyLocalForce([0, 0, force], [0, 0, 0]);
+      }
+      if (left) {
+        rotationRef.current += turn;
+        api.rotation.set(0, rotationRef.current, 0);
+      }
+      if (right) {
+        rotationRef.current -= turn;
+        api.rotation.set(0, rotationRef.current, 0);
+      }
+
+      // Safely subscribe to velocity updates
+      api.velocity.subscribe((v) => {
+        if (v && Array.isArray(v) && v.length === 3) {
+          console.log('Car: Velocity update', v);
+          velocityRef.current = [v[0] || 0, v[1] || 0, v[2] || 0];
+          return velocityRef.current; // Ensure we always return a value
+        }
+        return velocityRef.current; // Return previous value if new one is invalid
+      });
+    }
+    
+    // Sync mesh with physics if both refs exist
+    if (physicsRef && meshRef.current) {
+      meshRef.current.position.copy(physicsRef.position);
+      meshRef.current.quaternion.copy(physicsRef.quaternion);
+    }
   });
 
   return (
     <group>
-      <mesh ref={meshRef as any} castShadow>
+      <mesh ref={meshRef} castShadow position={safePosition}>
         <boxGeometry args={[2, 1, 4]} />
         <meshStandardMaterial color="red" />
       </mesh>
@@ -66,10 +89,10 @@ const Car = ({ position }: { position: [number, number, number] }) => {
 // Helper function to track keyboard input
 const keys: { [key: string]: boolean } = {};
 const getKeys = () => ({
-  forward: keys['ArrowUp'] || keys['w'],
-  backward: keys['ArrowDown'] || keys['s'],
-  left: keys['ArrowLeft'] || keys['a'],
-  right: keys['ArrowRight'] || keys['d'],
+  forward: keys['ArrowUp'] || keys['w'] || false,
+  backward: keys['ArrowDown'] || keys['s'] || false,
+  left: keys['ArrowLeft'] || keys['a'] || false,
+  right: keys['ArrowRight'] || keys['d'] || false,
 });
 
 window.addEventListener('keydown', (e) => (keys[e.key] = true));
