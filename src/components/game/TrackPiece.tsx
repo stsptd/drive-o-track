@@ -38,13 +38,16 @@ export const TrackPiece = ({
 
   // Apply physics ref to mesh ref on update
   if (physicsRef && meshRef.current) {
-    // Access the current object's position and update the mesh
-    meshRef.current.position.set(
-      physicsRef.position.x, 
-      physicsRef.position.y, 
-      physicsRef.position.z
-    );
-    meshRef.current.rotation.set(safeRotation[0], safeRotation[1], safeRotation[2]);
+    // Use type guard to check if the properties exist before accessing them
+    if ('position' in physicsRef) {
+      // Now TypeScript knows position exists
+      meshRef.current.position.set(
+        physicsRef.position.x, 
+        physicsRef.position.y, 
+        physicsRef.position.z
+      );
+      meshRef.current.rotation.set(safeRotation[0], safeRotation[1], safeRotation[2]);
+    }
   }
 
   return (

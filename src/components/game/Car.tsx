@@ -71,18 +71,21 @@ const Car = ({ position }: { position: [number, number, number] }) => {
     
     // Sync mesh with physics if both refs exist
     if (physicsRef && meshRef.current) {
-      // Access the physics position and quaternion properties directly
-      meshRef.current.position.set(
-        physicsRef.position.x,
-        physicsRef.position.y,
-        physicsRef.position.z
-      );
-      meshRef.current.quaternion.set(
-        physicsRef.quaternion.x,
-        physicsRef.quaternion.y,
-        physicsRef.quaternion.z,
-        physicsRef.quaternion.w
-      );
+      // Instead of accessing properties directly, we check if they exist on the physicsRef
+      if ('position' in physicsRef && 'quaternion' in physicsRef) {
+        // Now we can safely access position and quaternion
+        meshRef.current.position.set(
+          physicsRef.position.x,
+          physicsRef.position.y,
+          physicsRef.position.z
+        );
+        meshRef.current.quaternion.set(
+          physicsRef.quaternion.x,
+          physicsRef.quaternion.y,
+          physicsRef.quaternion.z,
+          physicsRef.quaternion.w
+        );
+      }
     }
   });
 
