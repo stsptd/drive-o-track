@@ -38,7 +38,12 @@ export const TrackPiece = ({
 
   // Apply physics ref to mesh ref on update
   if (physicsRef && meshRef.current) {
-    meshRef.current.position.copy(physicsRef.position);
+    // Access the current object's position and update the mesh
+    meshRef.current.position.set(
+      physicsRef.position.x, 
+      physicsRef.position.y, 
+      physicsRef.position.z
+    );
     meshRef.current.rotation.set(safeRotation[0], safeRotation[1], safeRotation[2]);
   }
 
