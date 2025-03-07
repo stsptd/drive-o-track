@@ -8,14 +8,36 @@ import Car from './Car';
 import LoadingScreen from './LoadingScreen';
 import GameUI from './GameUI';
 import { Button } from '@/components/ui/button';
+import { toast } from '@/components/ui/use-toast';
 
 const Game = () => {
   const [isBuilding, setIsBuilding] = useState(true);
   const [hasStarted, setHasStarted] = useState(false);
 
+  const handleModeToggle = () => {
+    setIsBuilding(!isBuilding);
+    toast({
+      title: isBuilding ? "Test Drive Mode" : "Edit Track Mode",
+      description: isBuilding ? "Drive around your track!" : "Build your racing track",
+    });
+  };
+
+  const handleStartRace = () => {
+    setHasStarted(true);
+    toast({
+      title: "Race Started!",
+      description: "Use arrow keys or WASD to drive",
+    });
+  };
+
   return (
     <div className="w-full h-screen relative bg-neutral-950">
-      <Canvas shadows camera={{ position: [0, 5, 10], fov: 50 }}>
+      <Canvas 
+        shadows 
+        camera={{ position: [0, 5, 10], fov: 50 }}
+        gl={{ antialias: true, alpha: false }}
+      >
+        <fog attach="fog" args={['#202020', 5, 30]} />
         <Suspense fallback={null}>
           <Environment preset="sunset" />
           <ambientLight intensity={0.5} />
@@ -25,11 +47,29 @@ const Game = () => {
             castShadow
             shadow-mapSize={[2048, 2048]}
           />
-          <Physics>
+          <Physics 
+            defaultContactMaterial={{ 
+              friction: 0.2,
+              restitution: 0.1
+            }}
+            gravity={[0, -9.8, 0]}
+          >
             {isBuilding ? (
               <TrackBuilder />
             ) : (
               hasStarted && <Car position={[0, 0.5, 0]} />
+            )}
+            
+            {/* Add a simple ground if no track pieces */}
+            {!isBuilding && !hasStarted && (
+              <mesh 
+                rotation={[-Math.PI / 2, 0, 0]} 
+                position={[0, 0, 0]}
+                receiveShadow
+              >
+                <planeGeometry args={[100, 100]} />
+                <meshStandardMaterial color="#303030" />
+              </mesh>
             )}
           </Physics>
           <OrbitControls
@@ -44,14 +84,14 @@ const Game = () => {
       <GameUI isBuilding={isBuilding}>
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4">
           <Button
-            onClick={() => setIsBuilding(!isBuilding)}
+            onClick={handleModeToggle}
             className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20"
           >
             {isBuilding ? 'Test Drive' : 'Edit Track'}
           </Button>
           {!isBuilding && (
             <Button
-              onClick={() => setHasStarted(true)}
+              onClick={handleStartRace}
               className="bg-white/10 backdrop-blur-md border border-white/20 text-white hover:bg-white/20"
               disabled={hasStarted}
             >

@@ -29,50 +29,27 @@ export const TrackPiece = ({
   
   const meshRef = useRef<THREE.Mesh>(null);
   
-  const [physicsRef] = useBox(() => {
-    console.log('TrackPiece: Creating physics body', { safePosition, safeRotation });
-    return {
-      type: 'Static' as const,
-      position: safePosition,
-      rotation: safeRotation,
-      args: [2, 0.2, 5],
-      onCollide: (e) => {
-        if (e && e.contact) {
-          console.log('TrackPiece: Collision detected');
-        }
-        return true; // Ensure callback returns a value
-      }
-    };
-  });
-
-  // Apply physics ref to mesh ref on update
-  if (physicsRef && meshRef.current) {
-    // Type assertion to define the shape of physicsRef
-    const typedPhysicsRef = physicsRef as unknown as PhysicsBodyRef;
-    
-    // Now TypeScript knows position exists
-    if ('position' in typedPhysicsRef) {
-      meshRef.current.position.set(
-        typedPhysicsRef.position.x, 
-        typedPhysicsRef.position.y, 
-        typedPhysicsRef.position.z
-      );
-      meshRef.current.rotation.set(safeRotation[0], safeRotation[1], safeRotation[2]);
+  // Use a simpler configuration for the physics body
+  const [physicsRef] = useBox(() => ({
+    type: 'Static',
+    position: safePosition,
+    rotation: safeRotation,
+    args: [2, 0.2, 5],
+    onCollide: (e) => {
+      console.log('TrackPiece: Collision detected', e);
     }
-  }
+  }));
 
   return (
-    <group>
-      <mesh 
-        ref={meshRef}
-        position={safePosition} 
-        rotation={safeRotation}
-        receiveShadow 
-        castShadow
-      >
-        <boxGeometry args={[2, 0.2, 5]} />
-        <meshStandardMaterial color="#505050" />
-      </mesh>
-    </group>
+    <mesh 
+      ref={meshRef}
+      position={safePosition} 
+      rotation={safeRotation}
+      receiveShadow 
+      castShadow
+    >
+      <boxGeometry args={[2, 0.2, 5]} />
+      <meshStandardMaterial color="#505050" />
+    </mesh>
   );
 };

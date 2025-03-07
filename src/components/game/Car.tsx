@@ -4,21 +4,6 @@ import { useFrame } from '@react-three/fiber';
 import { useBox } from '@react-three/cannon';
 import * as THREE from 'three';
 
-// Define an interface for the physics body reference
-interface PhysicsBodyRef {
-  position: {
-    x: number;
-    y: number;
-    z: number;
-  };
-  quaternion: {
-    x: number;
-    y: number;
-    z: number;
-    w: number;
-  };
-}
-
 const Car = ({ position }: { position: [number, number, number] }) => {
   console.log('Car: Component rendering', position);
   
@@ -30,21 +15,15 @@ const Car = ({ position }: { position: [number, number, number] }) => {
   // Ensure position is valid
   const safePosition = position || [0, 0.5, 0];
   
-  const [physicsRef, api] = useBox(() => {
-    console.log('Car: Creating physics body with position', safePosition);
-    return {
-      mass: 500,
-      position: safePosition,
-      args: [2, 1, 4],
-      type: 'Dynamic' as const,
-      onCollide: (e) => {
-        if (e && e.contact) {
-          console.log('Car: Collision detected');
-        }
-        return true; // Ensure callback returns a value
-      }
-    };
-  });
+  const [, api] = useBox(() => ({
+    mass: 500,
+    position: safePosition,
+    args: [2, 1, 4],
+    type: 'Dynamic',
+    onCollide: (e) => {
+      console.log('Car: Collision detected', e);
+    }
+  }));
 
   useFrame(() => {
     const { forward, backward, left, right } = getKeys();
@@ -73,46 +52,26 @@ const Car = ({ position }: { position: [number, number, number] }) => {
         api.rotation.set(0, rotationRef.current, 0);
       }
 
-      // Safely subscribe to velocity updates
-      api.velocity.subscribe((v) => {
-        if (v && Array.isArray(v) && v.length === 3) {
-          console.log('Car: Velocity update', v);
-          velocityRef.current = [v[0] || 0, v[1] || 0, v[2] || 0];
-          return velocityRef.current; // Ensure we always return a value
+      // Update position and rotation via API
+      api.position.subscribe((p) => {
+        if (meshRef.current && p) {
+          meshRef.current.position.set(p[0], p[1], p[2]);
         }
-        return velocityRef.current; // Return previous value if new one is invalid
       });
-    }
-    
-    // Sync mesh with physics if both refs exist
-    if (physicsRef && meshRef.current) {
-      // Type assertion to define the shape of physicsRef
-      const typedPhysicsRef = physicsRef as unknown as PhysicsBodyRef;
       
-      // Now we can safely access position and quaternion
-      if ('position' in typedPhysicsRef && 'quaternion' in typedPhysicsRef) {
-        meshRef.current.position.set(
-          typedPhysicsRef.position.x,
-          typedPhysicsRef.position.y,
-          typedPhysicsRef.position.z
-        );
-        meshRef.current.quaternion.set(
-          typedPhysicsRef.quaternion.x,
-          typedPhysicsRef.quaternion.y,
-          typedPhysicsRef.quaternion.z,
-          typedPhysicsRef.quaternion.w
-        );
-      }
+      api.rotation.subscribe((r) => {
+        if (meshRef.current && r) {
+          meshRef.current.rotation.set(r[0], r[1], r[2]);
+        }
+      });
     }
   });
 
   return (
-    <group>
-      <mesh ref={meshRef} castShadow position={safePosition}>
-        <boxGeometry args={[2, 1, 4]} />
-        <meshStandardMaterial color="red" />
-      </mesh>
-    </group>
+    <mesh ref={meshRef} castShadow position={safePosition}>
+      <boxGeometry args={[2, 1, 4]} />
+      <meshStandardMaterial color="red" />
+    </mesh>
   );
 };
 
