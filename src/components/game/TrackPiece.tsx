@@ -27,7 +27,6 @@ export const TrackPiece = ({
       position: safePosition,
       rotation: safeRotation,
       args: [2, 0.2, 5],
-      // We use ref callback to handle both undefined and defined refs safely
       onCollide: (e) => {
         if (e && e.contact) {
           console.log('TrackPiece: Collision detected');
@@ -39,8 +38,8 @@ export const TrackPiece = ({
 
   // Apply physics ref to mesh ref on update
   if (physicsRef && meshRef.current) {
-    physicsRef.position.copy(new THREE.Vector3(...safePosition));
-    physicsRef.rotation.set(safeRotation[0], safeRotation[1], safeRotation[2]);
+    meshRef.current.position.copy(physicsRef.position);
+    meshRef.current.rotation.set(safeRotation[0], safeRotation[1], safeRotation[2]);
   }
 
   return (
