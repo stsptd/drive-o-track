@@ -1,5 +1,5 @@
 
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useBox } from '@react-three/cannon';
 import * as THREE from 'three';
@@ -9,13 +9,12 @@ const Car = ({ position }: { position: [number, number, number] }) => {
   
   // Use refs for internal state
   const rotationRef = useRef<number>(0);
-  const velocityRef = useRef<[number, number, number]>([0, 0, 0]);
   const meshRef = useRef<THREE.Mesh>(null);
   
   // Ensure position is valid
   const safePosition = position || [0, 0.5, 0];
   
-  const [, api] = useBox(() => ({
+  const [physicsRef] = useBox(() => ({
     mass: 500,
     position: safePosition,
     args: [2, 1, 4],
@@ -25,9 +24,27 @@ const Car = ({ position }: { position: [number, number, number] }) => {
     }
   }));
 
+  // Sync physics body with mesh
+  useEffect(() => {
+    if (physicsRef) {
+      physicsRef.position.subscribe((p) => {
+        if (meshRef.current) {
+          meshRef.current.position.set(p[0], p[1], p[2]);
+        }
+      });
+      
+      physicsRef.rotation.subscribe((r) => {
+        if (meshRef.current) {
+          meshRef.current.rotation.set(r[0], r[1], r[2]);
+        }
+      });
+    }
+  }, [physicsRef]);
+
   useFrame(() => {
     const { forward, backward, left, right } = getKeys();
     
+    // Only log when keys are pressed to reduce console spam
     if (forward || backward || left || right) {
       console.log('Car: Movement detected', { forward, backward, left, right });
     }
@@ -36,42 +53,35 @@ const Car = ({ position }: { position: [number, number, number] }) => {
     const turn = 0.05;
 
     // Apply forces safely
-    if (api) {
+    if (physicsRef) {
       if (forward) {
-        api.applyLocalForce([0, 0, -force], [0, 0, 0]);
+        physicsRef.applyLocalForce([0, 0, -force], [0, 0, 0]);
       }
       if (backward) {
-        api.applyLocalForce([0, 0, force], [0, 0, 0]);
+        physicsRef.applyLocalForce([0, 0, force], [0, 0, 0]);
       }
       if (left) {
         rotationRef.current += turn;
-        api.rotation.set(0, rotationRef.current, 0);
+        physicsRef.rotation.set(0, rotationRef.current, 0);
       }
       if (right) {
         rotationRef.current -= turn;
-        api.rotation.set(0, rotationRef.current, 0);
+        physicsRef.rotation.set(0, rotationRef.current, 0);
       }
-
-      // Update position and rotation via API
-      api.position.subscribe((p) => {
-        if (meshRef.current && p) {
-          meshRef.current.position.set(p[0], p[1], p[2]);
-        }
-      });
-      
-      api.rotation.subscribe((r) => {
-        if (meshRef.current && r) {
-          meshRef.current.rotation.set(r[0], r[1], r[2]);
-        }
-      });
     }
   });
 
   return (
-    <mesh ref={meshRef} castShadow position={safePosition}>
-      <boxGeometry args={[2, 1, 4]} />
-      <meshStandardMaterial color="red" />
-    </mesh>
+    <>
+      {/* Visual mesh */}
+      <mesh ref={meshRef} castShadow position={safePosition}>
+        <boxGeometry args={[2, 1, 4]} />
+        <meshStandardMaterial color="red" />
+      </mesh>
+      
+      {/* Physics body (invisible) */}
+      <group ref={physicsRef} />
+    </>
   );
 };
 

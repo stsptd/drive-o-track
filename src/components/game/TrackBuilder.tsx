@@ -13,7 +13,7 @@ const TrackBuilder = () => {
     type: string;
   }>>([]);
   
-  // Create a ground plane
+  // Create a ground plane with physics
   const [ref] = usePlane(() => ({
     rotation: [-Math.PI / 2, 0, 0],
     position: [0, 0, 0],
@@ -42,16 +42,19 @@ const TrackBuilder = () => {
 
   return (
     <group>
+      {/* Use a separate mesh for the visual representation, independent from the physics body */}
       <mesh 
-        ref={ref}
-        rotation={[-Math.PI / 2, 0, 0]} 
         position={[0, 0, 0]}
+        rotation={[-Math.PI / 2, 0, 0]} 
         receiveShadow 
         onClick={handlePlaceTrack}
       >
         <planeGeometry args={[100, 100]} />
         <meshStandardMaterial color="#303030" />
       </mesh>
+      
+      {/* This is an invisible physics body for the ground */}
+      <group ref={ref} />
       
       {pieces.map((piece, index) => (
         <TrackPiece 
