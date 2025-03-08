@@ -12,6 +12,7 @@ type PhysicsApi = {
     set: (x: number, y: number, z: number) => void;
     subscribe: (callback: (value: [number, number, number]) => void) => () => void;
   };
+  applyLocalForce?: (force: [number, number, number], worldPoint: [number, number, number]) => void;
 };
 
 export const TrackPiece = ({

@@ -9,6 +9,7 @@ import LoadingScreen from './LoadingScreen';
 import GameUI from './GameUI';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
+import ErrorBoundary from './ErrorBoundary';
 
 const Game = () => {
   const [isBuilding, setIsBuilding] = useState(true);
@@ -32,52 +33,55 @@ const Game = () => {
 
   return (
     <div className="w-full h-screen relative bg-neutral-950">
-      <Suspense fallback={<LoadingScreen />}>
-        <Canvas 
-          shadows 
-          camera={{ position: [0, 5, 10], fov: 50 }}
-          gl={{ antialias: true, alpha: false }}
-        >
-          <fog attach="fog" args={['#202020', 5, 30]} />
-          <Environment preset="sunset" />
-          <ambientLight intensity={0.5} />
-          <directionalLight
-            position={[10, 10, 10]}
-            intensity={1}
-            castShadow
-            shadow-mapSize={[2048, 2048]}
-          />
-          <Physics 
-            defaultContactMaterial={{ 
-              friction: 0.2,
-              restitution: 0.1
-            }}
-            gravity={[0, -9.8, 0]}
+      <ErrorBoundary fallback={<LoadingScreen />}>
+        <Suspense fallback={<LoadingScreen />}>
+          <Canvas 
+            shadows 
+            camera={{ position: [0, 5, 10], fov: 50 }}
+            gl={{ antialias: true, alpha: false }}
           >
-            {/* Always render a ground plane for visual reference */}
-            <mesh 
-              rotation={[-Math.PI / 2, 0, 0]} 
-              position={[0, 0, 0]}
-              receiveShadow
+            <fog attach="fog" args={['#202020', 5, 30]} />
+            <Environment preset="sunset" />
+            <ambientLight intensity={0.5} />
+            <directionalLight
+              position={[10, 10, 10]}
+              intensity={1}
+              castShadow
+              shadow-mapSize={[2048, 2048]}
+            />
+            <Physics 
+              defaultContactMaterial={{ 
+                friction: 0.2,
+                restitution: 0.1
+              }}
+              gravity={[0, -9.8, 0]}
             >
-              <planeGeometry args={[100, 100]} />
-              <meshStandardMaterial color="#303030" />
-            </mesh>
-            
-            {isBuilding ? (
-              <TrackBuilder />
-            ) : (
-              hasStarted && <Car position={[0, 0.5, 0]} />
-            )}
-          </Physics>
-          <OrbitControls
-            makeDefault
-            maxPolarAngle={Math.PI / 2}
-            minDistance={5}
-            maxDistance={20}
-          />
-        </Canvas>
-      </Suspense>
+              {/* Always render a ground plane for visual reference */}
+              <mesh 
+                rotation={[-Math.PI / 2, 0, 0]} 
+                position={[0, 0, 0]}
+                receiveShadow
+              >
+                <planeGeometry args={[100, 100]} />
+                <meshStandardMaterial color="#303030" />
+              </mesh>
+              
+              {isBuilding ? (
+                <TrackBuilder />
+              ) : (
+                hasStarted && <Car position={[0, 0.5, 0]} />
+              )}
+            </Physics>
+            <OrbitControls
+              makeDefault
+              enableDamping={false}
+              maxPolarAngle={Math.PI / 2}
+              minDistance={5}
+              maxDistance={20}
+            />
+          </Canvas>
+        </Suspense>
+      </ErrorBoundary>
 
       <GameUI isBuilding={isBuilding}>
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4">
