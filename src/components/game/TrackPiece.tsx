@@ -3,6 +3,16 @@ import { useBox } from '@react-three/cannon';
 import * as THREE from 'three';
 import { useEffect, useRef } from 'react';
 
+// Define a proper type for the physics body
+type PhysicsApi = {
+  position: {
+    subscribe: (callback: (value: [number, number, number]) => void) => () => void;
+  };
+  rotation: {
+    subscribe: (callback: (value: [number, number, number]) => void) => () => void;
+  };
+};
+
 export const TrackPiece = ({
   position,
   rotation,
@@ -21,7 +31,7 @@ export const TrackPiece = ({
   const meshRef = useRef<THREE.Mesh>(null);
   
   // Create a physics body
-  const [physicsRef] = useBox(() => ({
+  const [physicsRef, api] = useBox<THREE.Group>(() => ({
     type: 'Static',
     position: safePosition,
     rotation: safeRotation,
@@ -33,20 +43,26 @@ export const TrackPiece = ({
 
   // Sync physics body position/rotation with the visual mesh
   useEffect(() => {
-    if (physicsRef) {
-      physicsRef.position.subscribe((p) => {
-        if (meshRef.current) {
-          meshRef.current.position.set(p[0], p[1], p[2]);
-        }
-      });
-      
-      physicsRef.rotation.subscribe((r) => {
-        if (meshRef.current) {
-          meshRef.current.rotation.set(r[0], r[1], r[2]);
-        }
-      });
-    }
-  }, [physicsRef]);
+    // Type assertion to access the physics API
+    const physicsApi = api as unknown as PhysicsApi;
+    
+    const unsubPosition = physicsApi.position.subscribe((p) => {
+      if (meshRef.current) {
+        meshRef.current.position.set(p[0], p[1], p[2]);
+      }
+    });
+    
+    const unsubRotation = physicsApi.rotation.subscribe((r) => {
+      if (meshRef.current) {
+        meshRef.current.rotation.set(r[0], r[1], r[2]);
+      }
+    });
+
+    return () => {
+      unsubPosition();
+      unsubRotation();
+    };
+  }, [api]);
 
   return (
     <>
