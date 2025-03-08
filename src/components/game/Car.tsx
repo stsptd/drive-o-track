@@ -10,13 +10,10 @@ type PhysicsApi = {
     subscribe: (callback: (value: [number, number, number]) => void) => () => void;
   };
   rotation: {
-    subscribe: (callback: (value: [number, number, number]) => void) => () => void;
-  };
-  applyLocalForce: (force: [number, number, number], worldPoint: [number, number, number]) => void;
-  rotation: {
     set: (x: number, y: number, z: number) => void;
     subscribe: (callback: (value: [number, number, number]) => void) => () => void;
   };
+  applyLocalForce: (force: [number, number, number], worldPoint: [number, number, number]) => void;
 };
 
 const Car = ({ position }: { position: [number, number, number] }) => {
