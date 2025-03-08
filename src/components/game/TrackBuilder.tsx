@@ -21,7 +21,7 @@ const TrackBuilder = () => {
   ]);
   
   // Create a ground plane with physics
-  const [planeRef] = usePlane<THREE.Group>(() => ({
+  const [planeRef] = usePlane(() => ({
     rotation: [-Math.PI / 2, 0, 0],
     position: [0, 0, 0],
     type: 'Static'

@@ -12,7 +12,6 @@ type PhysicsApi = {
     set: (x: number, y: number, z: number) => void;
     subscribe: (callback: (value: [number, number, number]) => void) => () => void;
   };
-  applyLocalForce?: (force: [number, number, number], worldPoint: [number, number, number]) => void;
 };
 
 export const TrackPiece = ({
@@ -33,7 +32,7 @@ export const TrackPiece = ({
   const meshRef = useRef<THREE.Mesh>(null);
   
   // Create a physics body
-  const [physicsRef, api] = useBox<THREE.Group>(() => ({
+  const [physicsRef, api] = useBox(() => ({
     type: 'Static',
     position: safePosition,
     rotation: safeRotation,
@@ -45,6 +44,8 @@ export const TrackPiece = ({
 
   // Sync physics body position/rotation with the visual mesh
   useEffect(() => {
+    if (!api) return;
+    
     // Type assertion to access the physics API
     const physicsApi = api as unknown as PhysicsApi;
     

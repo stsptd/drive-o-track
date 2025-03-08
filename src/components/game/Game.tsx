@@ -33,28 +33,26 @@ const Game = () => {
 
   return (
     <div className="w-full h-screen relative bg-neutral-950">
-      <ErrorBoundary fallback={<LoadingScreen />}>
+      <ErrorBoundary>
         <Suspense fallback={<LoadingScreen />}>
           <Canvas 
             shadows 
             camera={{ position: [0, 5, 10], fov: 50 }}
-            gl={{ antialias: true, alpha: false }}
           >
-            <fog attach="fog" args={['#202020', 5, 30]} />
-            <Environment preset="sunset" />
             <ambientLight intensity={0.5} />
             <directionalLight
               position={[10, 10, 10]}
               intensity={1}
               castShadow
-              shadow-mapSize={[2048, 2048]}
             />
+            <Environment preset="sunset" />
+            <fog attach="fog" args={['#202020', 5, 30]} />
+            
             <Physics 
               defaultContactMaterial={{ 
                 friction: 0.2,
                 restitution: 0.1
               }}
-              gravity={[0, -9.8, 0]}
             >
               {/* Always render a ground plane for visual reference */}
               <mesh 
