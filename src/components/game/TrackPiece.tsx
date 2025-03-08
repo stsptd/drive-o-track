@@ -9,6 +9,7 @@ type PhysicsApi = {
     subscribe: (callback: (value: [number, number, number]) => void) => () => void;
   };
   rotation: {
+    set: (x: number, y: number, z: number) => void;
     subscribe: (callback: (value: [number, number, number]) => void) => () => void;
   };
 };
