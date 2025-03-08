@@ -25,7 +25,8 @@ const TrackBuilder = () => {
   const groupRef = useRef<Group>(null);
   
   // Create a ground plane with physics
-  const [, planeApi] = usePlane(() => ({
+  // Important: Don't directly attach the ref to the physics object
+  const [ref, planeApi] = usePlane(() => ({
     rotation: [-Math.PI / 2, 0, 0],
     position: [0, 0, 0],
     type: 'Static'
@@ -64,8 +65,8 @@ const TrackBuilder = () => {
         <meshStandardMaterial color="#303030" />
       </mesh>
       
-      {/* This is a group for the physics body */}
-      <group ref={groupRef} />
+      {/* This is a group for the physics body - we use the ref from usePlane here */}
+      <group ref={ref} />
       
       {pieces.map((piece, index) => (
         <TrackPiece 

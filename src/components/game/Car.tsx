@@ -26,7 +26,8 @@ const Car = ({ position }: { position: [number, number, number] }) => {
   // Ensure position is valid
   const safePosition = position || [0, 0.5, 0];
   
-  const [physicsRef, api] = useBox<THREE.Group>(() => ({
+  // Separate the ref from the api to avoid unnecessary re-renders and ref issues
+  const [ref, api] = useBox<THREE.Group>(() => ({
     mass: 500,
     position: safePosition,
     args: [2, 1, 4],
@@ -38,6 +39,8 @@ const Car = ({ position }: { position: [number, number, number] }) => {
 
   // Sync physics body with mesh
   useEffect(() => {
+    if (!api) return;
+    
     // Type assertion to access the physics API
     const physicsApi = api as unknown as PhysicsApi;
     
@@ -60,6 +63,8 @@ const Car = ({ position }: { position: [number, number, number] }) => {
   }, [api]);
 
   useFrame(() => {
+    if (!api) return;
+    
     const { forward, backward, left, right } = getKeys();
     
     // Only log when keys are pressed to reduce console spam
@@ -99,7 +104,7 @@ const Car = ({ position }: { position: [number, number, number] }) => {
       </mesh>
       
       {/* Physics body (invisible) */}
-      <group ref={physicsRef} />
+      <group ref={ref} />
     </>
   );
 };

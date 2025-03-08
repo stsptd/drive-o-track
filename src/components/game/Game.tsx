@@ -38,7 +38,9 @@ const Game = () => {
           <Canvas 
             shadows 
             camera={{ position: [0, 5, 10], fov: 50 }}
+            gl={{ alpha: false }} // Disable alpha for better performance
           >
+            <color attach="background" args={['#202020']} />
             <ambientLight intensity={0.5} />
             <directionalLight
               position={[10, 10, 10]}
@@ -54,16 +56,6 @@ const Game = () => {
                 restitution: 0.1
               }}
             >
-              {/* Always render a ground plane for visual reference */}
-              <mesh 
-                rotation={[-Math.PI / 2, 0, 0]} 
-                position={[0, 0, 0]}
-                receiveShadow
-              >
-                <planeGeometry args={[100, 100]} />
-                <meshStandardMaterial color="#303030" />
-              </mesh>
-              
               {isBuilding ? (
                 <TrackBuilder />
               ) : (

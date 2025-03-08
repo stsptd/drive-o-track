@@ -31,10 +31,9 @@ export const TrackPiece = ({
   const safeRotation = rotation || [0, 0, 0];
   
   const meshRef = useRef<THREE.Mesh>(null);
-  const groupRef = useRef<Group>(null);
   
-  // Create a physics body
-  const [, api] = useBox(() => ({
+  // Create a physics body and separate the ref from the api
+  const [ref, api] = useBox(() => ({
     type: 'Static',
     position: safePosition,
     rotation: safeRotation,
@@ -86,8 +85,8 @@ export const TrackPiece = ({
         <meshStandardMaterial color={color} />
       </mesh>
       
-      {/* This connects to the physics body but is invisible */}
-      <group ref={groupRef} />
+      {/* This connects to the physics body but is invisible - use the ref from useBox */}
+      <group ref={ref} />
     </>
   );
 };
