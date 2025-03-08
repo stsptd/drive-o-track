@@ -1,8 +1,9 @@
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { usePlane } from '@react-three/cannon';
 import * as THREE from 'three';
 import { TrackPiece } from './TrackPiece';
+import { Group } from 'three';
 
 const TrackBuilder = () => {
   console.log('TrackBuilder: Component rendering');
@@ -20,8 +21,11 @@ const TrackBuilder = () => {
     }
   ]);
   
+  // Create a ref for the plane physics body
+  const groupRef = useRef<Group>(null);
+  
   // Create a ground plane with physics
-  const [planeRef] = usePlane(() => ({
+  const [, planeApi] = usePlane(() => ({
     rotation: [-Math.PI / 2, 0, 0],
     position: [0, 0, 0],
     type: 'Static'
@@ -60,8 +64,8 @@ const TrackBuilder = () => {
         <meshStandardMaterial color="#303030" />
       </mesh>
       
-      {/* This is an invisible physics body for the ground */}
-      <group ref={planeRef} />
+      {/* This is a group for the physics body */}
+      <group ref={groupRef} />
       
       {pieces.map((piece, index) => (
         <TrackPiece 

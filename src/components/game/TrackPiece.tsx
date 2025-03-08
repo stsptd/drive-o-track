@@ -2,6 +2,7 @@
 import { useBox } from '@react-three/cannon';
 import * as THREE from 'three';
 import { useEffect, useRef } from 'react';
+import { Group } from 'three';
 
 // Define a proper type for the physics body
 type PhysicsApi = {
@@ -30,9 +31,10 @@ export const TrackPiece = ({
   const safeRotation = rotation || [0, 0, 0];
   
   const meshRef = useRef<THREE.Mesh>(null);
+  const groupRef = useRef<Group>(null);
   
   // Create a physics body
-  const [physicsRef, api] = useBox(() => ({
+  const [, api] = useBox(() => ({
     type: 'Static',
     position: safePosition,
     rotation: safeRotation,
@@ -85,7 +87,7 @@ export const TrackPiece = ({
       </mesh>
       
       {/* This connects to the physics body but is invisible */}
-      <group ref={physicsRef} />
+      <group ref={groupRef} />
     </>
   );
 };
