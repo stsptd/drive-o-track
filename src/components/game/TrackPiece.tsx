@@ -65,6 +65,9 @@ export const TrackPiece = ({
     };
   }, [api]);
 
+  // Use a more visible color for track pieces to debug
+  const color = type === 'straight' ? '#6d6d6d' : '#505050';
+
   return (
     <>
       {/* Visual representation */}
@@ -76,7 +79,7 @@ export const TrackPiece = ({
         castShadow
       >
         <boxGeometry args={[2, 0.2, 5]} />
-        <meshStandardMaterial color="#505050" />
+        <meshStandardMaterial color={color} />
       </mesh>
       
       {/* This connects to the physics body but is invisible */}

@@ -11,7 +11,14 @@ const TrackBuilder = () => {
     position: [number, number, number];
     rotation: [number, number, number];
     type: string;
-  }>>([]);
+  }>>([
+    // Add a default piece to ensure something is visible
+    {
+      position: [0, 0.1, 0],
+      rotation: [0, 0, 0],
+      type: 'straight'
+    }
+  ]);
   
   // Create a ground plane with physics
   const [planeRef] = usePlane<THREE.Group>(() => ({

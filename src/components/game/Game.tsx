@@ -32,13 +32,13 @@ const Game = () => {
 
   return (
     <div className="w-full h-screen relative bg-neutral-950">
-      <Canvas 
-        shadows 
-        camera={{ position: [0, 5, 10], fov: 50 }}
-        gl={{ antialias: true, alpha: false }}
-      >
-        <fog attach="fog" args={['#202020', 5, 30]} />
-        <Suspense fallback={null}>
+      <Suspense fallback={<LoadingScreen />}>
+        <Canvas 
+          shadows 
+          camera={{ position: [0, 5, 10], fov: 50 }}
+          gl={{ antialias: true, alpha: false }}
+        >
+          <fog attach="fog" args={['#202020', 5, 30]} />
           <Environment preset="sunset" />
           <ambientLight intensity={0.5} />
           <directionalLight
@@ -54,22 +54,20 @@ const Game = () => {
             }}
             gravity={[0, -9.8, 0]}
           >
+            {/* Always render a ground plane for visual reference */}
+            <mesh 
+              rotation={[-Math.PI / 2, 0, 0]} 
+              position={[0, 0, 0]}
+              receiveShadow
+            >
+              <planeGeometry args={[100, 100]} />
+              <meshStandardMaterial color="#303030" />
+            </mesh>
+            
             {isBuilding ? (
               <TrackBuilder />
             ) : (
               hasStarted && <Car position={[0, 0.5, 0]} />
-            )}
-            
-            {/* Add a simple ground if no track pieces */}
-            {!isBuilding && !hasStarted && (
-              <mesh 
-                rotation={[-Math.PI / 2, 0, 0]} 
-                position={[0, 0, 0]}
-                receiveShadow
-              >
-                <planeGeometry args={[100, 100]} />
-                <meshStandardMaterial color="#303030" />
-              </mesh>
             )}
           </Physics>
           <OrbitControls
@@ -78,8 +76,8 @@ const Game = () => {
             minDistance={5}
             maxDistance={20}
           />
-        </Suspense>
-      </Canvas>
+        </Canvas>
+      </Suspense>
 
       <GameUI isBuilding={isBuilding}>
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-4">
