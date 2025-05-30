@@ -20,8 +20,8 @@ const TrackBuilder = () => {
     }
   ]);
   
-  // Create a ground plane with physics - physics hook doesn't need a ref for ground
-  const [, planeApi] = usePlane(() => ({
+  // Create a ground plane with physics - need a ref for the physics body
+  const [planeRef] = usePlane(() => ({
     rotation: [-Math.PI / 2, 0, 0],
     position: [0, 0, 0],
     type: 'Static'
@@ -49,6 +49,12 @@ const TrackBuilder = () => {
 
   return (
     <group>
+      {/* Physics ground plane (invisible) */}
+      <mesh ref={planeRef} visible={false}>
+        <planeGeometry args={[100, 100]} />
+        <meshStandardMaterial />
+      </mesh>
+      
       {/* Visual ground plane */}
       <mesh 
         position={[0, 0, 0]}

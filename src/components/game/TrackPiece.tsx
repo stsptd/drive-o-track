@@ -31,8 +31,8 @@ export const TrackPiece = ({
   
   const meshRef = useRef<THREE.Mesh>(null);
   
-  // Create a physics body - we don't need the ref for static objects
-  const [, api] = useBox(() => ({
+  // Create a physics body - need the ref for the physics engine
+  const [physicsRef, api] = useBox(() => ({
     type: 'Static',
     position: safePosition,
     rotation: safeRotation,
@@ -71,15 +71,24 @@ export const TrackPiece = ({
   const color = type === 'straight' ? '#6d6d6d' : '#505050';
 
   return (
-    <mesh 
-      ref={meshRef}
-      position={safePosition} 
-      rotation={safeRotation}
-      receiveShadow 
-      castShadow
-    >
-      <boxGeometry args={[2, 0.2, 5]} />
-      <meshStandardMaterial color={color} />
-    </mesh>
+    <group>
+      {/* Physics body (invisible) */}
+      <mesh ref={physicsRef} visible={false}>
+        <boxGeometry args={[2, 0.2, 5]} />
+        <meshStandardMaterial />
+      </mesh>
+      
+      {/* Visual representation */}
+      <mesh 
+        ref={meshRef}
+        position={safePosition} 
+        rotation={safeRotation}
+        receiveShadow 
+        castShadow
+      >
+        <boxGeometry args={[2, 0.2, 5]} />
+        <meshStandardMaterial color={color} />
+      </mesh>
+    </group>
   );
 };
