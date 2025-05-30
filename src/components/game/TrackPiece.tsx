@@ -2,7 +2,6 @@
 import { useBox } from '@react-three/cannon';
 import * as THREE from 'three';
 import { useEffect, useRef } from 'react';
-import { Group } from 'three';
 
 // Define a proper type for the physics body
 type PhysicsApi = {
@@ -32,8 +31,8 @@ export const TrackPiece = ({
   
   const meshRef = useRef<THREE.Mesh>(null);
   
-  // Create a physics body and separate the ref from the api
-  const [ref, api] = useBox(() => ({
+  // Create a physics body - we don't need the ref for static objects
+  const [, api] = useBox(() => ({
     type: 'Static',
     position: safePosition,
     rotation: safeRotation,
@@ -72,21 +71,15 @@ export const TrackPiece = ({
   const color = type === 'straight' ? '#6d6d6d' : '#505050';
 
   return (
-    <>
-      {/* Visual representation */}
-      <mesh 
-        ref={meshRef}
-        position={safePosition} 
-        rotation={safeRotation}
-        receiveShadow 
-        castShadow
-      >
-        <boxGeometry args={[2, 0.2, 5]} />
-        <meshStandardMaterial color={color} />
-      </mesh>
-      
-      {/* This connects to the physics body but is invisible - use the ref from useBox */}
-      <group ref={ref} />
-    </>
+    <mesh 
+      ref={meshRef}
+      position={safePosition} 
+      rotation={safeRotation}
+      receiveShadow 
+      castShadow
+    >
+      <boxGeometry args={[2, 0.2, 5]} />
+      <meshStandardMaterial color={color} />
+    </mesh>
   );
 };

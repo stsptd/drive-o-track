@@ -3,7 +3,6 @@ import { useState, useRef } from 'react';
 import { usePlane } from '@react-three/cannon';
 import * as THREE from 'three';
 import { TrackPiece } from './TrackPiece';
-import { Group } from 'three';
 
 const TrackBuilder = () => {
   console.log('TrackBuilder: Component rendering');
@@ -21,12 +20,8 @@ const TrackBuilder = () => {
     }
   ]);
   
-  // Create a ref for the plane physics body
-  const groupRef = useRef<Group>(null);
-  
-  // Create a ground plane with physics
-  // Important: Don't directly attach the ref to the physics object
-  const [ref, planeApi] = usePlane(() => ({
+  // Create a ground plane with physics - physics hook doesn't need a ref for ground
+  const [, planeApi] = usePlane(() => ({
     rotation: [-Math.PI / 2, 0, 0],
     position: [0, 0, 0],
     type: 'Static'
@@ -54,7 +49,7 @@ const TrackBuilder = () => {
 
   return (
     <group>
-      {/* Use a separate mesh for the visual representation, independent from the physics body */}
+      {/* Visual ground plane */}
       <mesh 
         position={[0, 0, 0]}
         rotation={[-Math.PI / 2, 0, 0]} 
@@ -64,9 +59,6 @@ const TrackBuilder = () => {
         <planeGeometry args={[100, 100]} />
         <meshStandardMaterial color="#303030" />
       </mesh>
-      
-      {/* This is a group for the physics body - we use the ref from usePlane here */}
-      <group ref={ref} />
       
       {pieces.map((piece, index) => (
         <TrackPiece 
